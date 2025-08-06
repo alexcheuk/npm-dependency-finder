@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { PackageVersionFinder } from "@/components/PackageVersionFinder";
 import { StructuredData } from "@/components/StructuredData";
 
@@ -68,7 +69,9 @@ export default async function Home({ searchParams }: PageProps) {
   return (
     <>
       {searchQuery && <StructuredData searchQuery={searchQuery} />}
-      <PackageVersionFinder />
+      <Suspense fallback={<div>Loading...</div>}>
+        <PackageVersionFinder />
+      </Suspense>
     </>
   );
 }

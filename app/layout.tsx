@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Suspense } from "react";
 import { StructuredData } from "@/components/StructuredData";
 import { GoogleAnalytics } from "@/components/analytics";
 import { PageViewTracker } from "@/components/PageViewTracker";
@@ -12,6 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://npm-version-finder.dev"),
   title: {
     default: "npm Version Finder - Resolve Package Vulnerabilities",
     template: "%s | npm Version Finder",
@@ -119,7 +121,9 @@ export default function RootLayout({
         <GoogleAnalytics />
         <StructuredData />
         <ClientProviders>
-          <PageViewTracker />
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
           {children}
         </ClientProviders>
       </body>
