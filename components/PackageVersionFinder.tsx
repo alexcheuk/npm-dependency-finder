@@ -177,7 +177,7 @@ export const PackageVersionFinder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <main className="min-h-screen bg-background py-12 px-4">
       {/* Fixed Theme Toggle */}
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
@@ -185,9 +185,9 @@ export const PackageVersionFinder = () => {
       
       <div className="max-w-2xl mx-auto space-y-8">        
         {/* Header */}
-        <div className="text-center space-y-4">
+        <header className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 text-primary mb-4">
-            <Terminal className="h-8 w-8" />
+            <Terminal className="h-8 w-8" aria-hidden="true" />
             <span className="text-2xl font-bold font-mono">npm-version-finder</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight font-mono">
@@ -198,7 +198,7 @@ export const PackageVersionFinder = () => {
             child package requirements. Resolve vulnerabilities with minimal
             changelog impact.
           </p>
-        </div>
+        </header>
 
         {/* Main Form */}
         {showForm && (
@@ -214,7 +214,7 @@ export const PackageVersionFinder = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" role="search" aria-label="npm package dependency search">
                 {/* Parent Package */}
                 <div className="space-y-2">
                   <Label
@@ -518,10 +518,10 @@ export const PackageVersionFinder = () => {
         )}
 
         {/* Footer Info */}
-        <div className="text-center text-sm text-muted-foreground font-mono">
+        <footer className="text-center text-sm text-muted-foreground font-mono">
           <p>Built for developers to resolve npm vulnerabilities efficiently</p>
-        </div>
+        </footer>
       </div>
-    </div>
+    </main>
   );
 };
