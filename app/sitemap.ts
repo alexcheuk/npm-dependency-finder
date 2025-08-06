@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://npm-version-finder.dev'
+  const baseUrl = 'https://npm-version-finder.com'
 
   return [
     {
@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/api`,
+      url: `${baseUrl}/api/search`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.3,

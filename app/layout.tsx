@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://npm-version-finder.dev"),
+  metadataBase: new URL("https://npm-version-finder.com"),
   title: {
     default: "npm Version Finder - Resolve Package Vulnerabilities",
     template: "%s | npm Version Finder",
@@ -30,9 +30,15 @@ export const metadata: Metadata = {
     "node.js",
     "javascript",
     "developer tools",
+    "dependency management",
+    "package version",
+    "npm audit",
+    "security fix",
+    "minimal upgrade",
+    "package compatibility",
   ],
   authors: [
-    { name: "npm Version Finder", url: "https://npm-version-finder.dev" },
+    { name: "npm Version Finder", url: "https://npm-version-finder.com" },
   ],
   creator: "npm Version Finder",
   publisher: "npm Version Finder",
@@ -50,7 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://npm-version-finder.dev",
+    url: "https://npm-version-finder.com",
     title: "npm Version Finder - Resolve Package Vulnerabilities",
     description:
       "Find the minimal parent npm package version that satisfies child package requirements. Resolve vulnerabilities with minimal changelog impact.",
@@ -71,12 +77,16 @@ export const metadata: Metadata = {
       "Find the minimal parent npm package version that satisfies child package requirements. Free developer tool.",
     images: ["/og-image.png"],
     creator: "@npmversionfinder",
+    site: "@npmversionfinder",
   },
   verification: {
     google: "your-google-verification-code",
+    // Add other search engine verification codes as needed
+    // bing: "your-bing-verification-code",
+    // yandex: "your-yandex-verification-code",
   },
   alternates: {
-    canonical: "https://npm-version-finder.dev",
+    canonical: "https://npm-version-finder.com",
   },
   category: "technology",
 };
@@ -111,8 +121,13 @@ export default function RootLayout({
           media="(prefers-color-scheme: light)"
         />
         <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="npm Version Finder" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
       </head>
       <body
         className={`${inter.className} ${jetbrainsMono.variable}`}

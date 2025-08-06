@@ -26,14 +26,14 @@ export async function generateMetadata({
       openGraph: {
         title,
         description,
-        url: `https://npm-version-finder.dev?parent=${parentPackage}&child=${childPackage}`,
+        url: `https://npm-version-finder.com?parent=${parentPackage}&child=${childPackage}`,
       },
       twitter: {
         title,
         description,
       },
       alternates: {
-        canonical: `https://npm-version-finder.dev?parent=${parentPackage}&child=${childPackage}`,
+        canonical: `https://npm-version-finder.com?parent=${parentPackage}&child=${childPackage}`,
       },
     };
   }

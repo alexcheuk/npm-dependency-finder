@@ -15,12 +15,12 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "WebSite",
     "name": "npm Version Finder",
     "description": "Find the minimal parent npm package version that satisfies child package requirements. Resolve vulnerabilities with minimal changelog impact.",
-    "url": "https://npm-version-finder.dev",
+    "url": "https://npm-version-finder.com",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://npm-version-finder.dev?parent={parent_package}&child={child_package}"
+        "urlTemplate": "https://npm-version-finder.com?parent={parent_package}&child={child_package}"
       },
       "query-input": "required name=parent_package"
     }
@@ -31,7 +31,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "WebApplication",
     "name": "npm Version Finder",
     "description": "Find the minimal parent npm package version that satisfies child package requirements",
-    "url": "https://npm-version-finder.dev",
+    "url": "https://npm-version-finder.com",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Web Browser",
     "offers": {
@@ -54,7 +54,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "SoftwareApplication",
     "name": "npm Version Finder",
     "description": "Developer tool for finding minimal npm package versions that satisfy dependency requirements",
-    "url": "https://npm-version-finder.dev",
+    "url": "https://npm-version-finder.com",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Any",
     "offers": {
@@ -103,7 +103,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
   const searchActionSchema = searchQuery ? {
     "@context": "https://schema.org",
     "@type": "SearchAction",
-    "target": `https://npm-version-finder.dev?parent=${searchQuery.parentPackage}&child=${searchQuery.childPackage}`,
+    "target": `https://npm-version-finder.com?parent=${searchQuery.parentPackage}&child=${searchQuery.childPackage}`,
     "query": `${searchQuery.parentPackage} ${searchQuery.childPackage}`,
     "object": {
       "@type": "Thing",
