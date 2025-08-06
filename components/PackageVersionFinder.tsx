@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Package, Search, Terminal } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface FormData {
   parentPackage: string;
@@ -29,7 +31,69 @@ interface FormData {
   packageRemoved: boolean;
 }
 
+const STORAGE_KEY = 'npm-dependency-finder-form-data';
+
+// Utility functions for localStorage
+const saveToLocalStorage = (data: FormData) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to save form data to localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = (): FormData | null => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.warn('Failed to load form data from localStorage:', error);
+  }
+  return null;
+};
+
+// URL parameter utility functions
+const loadFromURLParams = (searchParams: URLSearchParams): FormData | null => {
+  const parentPackage = searchParams.get('parent');
+  const parentMinVersion = searchParams.get('parentVersion') || '';
+  const childPackage = searchParams.get('child');
+  const childMinVersion = searchParams.get('childVersion') || '';
+  const packageRemoved = searchParams.get('removed') === 'true';
+
+  if (parentPackage && childPackage) {
+    return {
+      parentPackage,
+      parentMinVersion,
+      childPackage,
+      childMinVersion,
+      packageRemoved
+    };
+  }
+  return null;
+};
+
+const createPermalink = (formData: FormData): string => {
+  const params = new URLSearchParams();
+  params.set('parent', formData.parentPackage);
+  if (formData.parentMinVersion) {
+    params.set('parentVersion', formData.parentMinVersion);
+  }
+  params.set('child', formData.childPackage);
+  if (formData.childMinVersion) {
+    params.set('childVersion', formData.childMinVersion);
+  }
+  if (formData.packageRemoved) {
+    params.set('removed', 'true');
+  }
+  return `?${params.toString()}`;
+};
+
 export const PackageVersionFinder = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [formData, setFormData] = useState<FormData>({
     parentPackage: "",
     parentMinVersion: "",
@@ -48,11 +112,34 @@ export const PackageVersionFinder = () => {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Load form data with priority: URL params > localStorage > default
+  useEffect(() => {
+    // First try to load from URL parameters (highest priority)
+    const urlData = loadFromURLParams(searchParams);
+    if (urlData) {
+      setFormData(urlData);
+      return;
+    }
+    
+    // Fallback to localStorage
+    const savedData = loadFromLocalStorage();
+    if (savedData) {
+      setFormData(savedData);
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     setResult(null);
+
+    // Save form data to localStorage before submitting
+    saveToLocalStorage(formData);
+
+    // Update URL with form data (create permalink)
+    const permalink = createPermalink(formData);
+    router.push(permalink, { scroll: false });
 
     try {
       const response = await fetch("/api/search", {
@@ -90,18 +177,23 @@ export const PackageVersionFinder = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-subtle py-12 px-4">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background py-12 px-4">
+      {/* Fixed Theme Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      
+      <div className="max-w-2xl mx-auto space-y-8">        
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 text-accent mb-4">
+          <div className="inline-flex items-center gap-2 text-primary mb-4">
             <Terminal className="h-8 w-8" />
-            <span className="text-2xl font-bold">npm-version-finder</span>
+            <span className="text-2xl font-bold font-mono">npm-version-finder</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight font-mono">
             Find Minimal Package Versions
           </h1>
-          <p className="text-muted-foreground max-w-lg mx-auto">
+          <p className="text-muted-foreground max-w-lg mx-auto font-mono text-sm">
             Discover the earliest parent npm package version that satisfies your
             child package requirements. Resolve vulnerabilities with minimal
             changelog impact.
@@ -110,13 +202,13 @@ export const PackageVersionFinder = () => {
 
         {/* Main Form */}
         {showForm && (
-          <Card className="terminal-shadow">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-accent" />
+              <CardTitle className="flex items-center gap-2 font-mono">
+                <Package className="h-5 w-5 text-primary" />
                 Package Dependencies
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="font-mono text-sm">
                 Enter your package requirements to find the optimal version
                 match
               </CardDescription>
@@ -127,7 +219,7 @@ export const PackageVersionFinder = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="parent-package"
-                    className="text-sm font-medium"
+                    className="text-sm font-medium font-mono"
                   >
                     Parent Package Name
                   </Label>
@@ -147,7 +239,7 @@ export const PackageVersionFinder = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="parent-version"
-                    className="text-sm font-medium"
+                    className="text-sm font-medium font-mono"
                   >
                     Parent Minimum Version
                   </Label>
@@ -168,7 +260,7 @@ export const PackageVersionFinder = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="child-package"
-                    className="text-sm font-medium"
+                    className="text-sm font-medium font-mono"
                   >
                     Child Package Name
                   </Label>
@@ -189,7 +281,7 @@ export const PackageVersionFinder = () => {
                   <div className="space-y-2">
                     <Label
                       htmlFor="child-version"
-                      className="text-sm font-medium"
+                      className="text-sm font-medium font-mono"
                     >
                       Child Package Minimum Version
                     </Label>
@@ -216,11 +308,11 @@ export const PackageVersionFinder = () => {
                     <div className="space-y-1">
                       <Label
                         htmlFor="package-removed"
-                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 font-mono"
                       >
                         OR if the package is removed
                       </Label>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground font-mono">
                         When checked, finds the first version where the child
                         package is either removed OR meets the minimum version
                         above.
@@ -232,7 +324,7 @@ export const PackageVersionFinder = () => {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground glow-accent"
+                  className="w-full font-mono"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -254,15 +346,15 @@ export const PackageVersionFinder = () => {
 
         {/* Error */}
         {error && !showForm && (
-          <Card className="terminal-shadow border-red-500/20">
+          <Card className="border-destructive/20">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between text-red-500">
+              <CardTitle className="flex items-center justify-between text-destructive font-mono">
                 <span>Error</span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleNewSearch}
-                  className="text-sm"
+                  className="text-sm font-mono"
                 >
                   Try Again
                 </Button>
@@ -270,20 +362,20 @@ export const PackageVersionFinder = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Search Summary */}
-              <div className="bg-muted rounded-lg p-4">
-                <h4 className="font-semibold text-sm mb-2">
+              <div className="bg-muted rounded-sm p-4">
+                <h4 className="font-semibold text-sm mb-2 font-mono">
                   Search Parameters:
                 </h4>
-                <div className="space-y-1 text-sm">
+                <div className="space-y-1 text-sm font-mono">
                   <div>
                     <strong>Parent Package:</strong>{" "}
-                    <code>{formData.parentPackage}</code>{" "}
+                    <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.parentPackage}</code>{" "}
                     {formData.parentMinVersion &&
                       `>= ${formData.parentMinVersion}`}
                   </div>
                   <div>
                     <strong>Child Package:</strong>{" "}
-                    <code>{formData.childPackage}</code>
+                    <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childPackage}</code>
                   </div>
                   {formData.packageRemoved ? (
                     <div>
@@ -291,7 +383,7 @@ export const PackageVersionFinder = () => {
                       {formData.childMinVersion ? (
                         <>
                           Package should be removed <em>OR</em> version {">"}={" "}
-                          <code>{formData.childMinVersion}</code>
+                          <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childMinVersion}</code>
                         </>
                       ) : (
                         <>Package should be removed</>
@@ -300,13 +392,13 @@ export const PackageVersionFinder = () => {
                   ) : (
                     <div>
                       <strong>Minimum Version:</strong>{" "}
-                      <code>{formData.childMinVersion}</code>
+                      <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childMinVersion}</code>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-red-50 dark:bg-red-950 rounded-lg p-4 font-mono text-sm text-red-700 dark:text-red-300">
+              <div className="bg-destructive/10 border border-destructive/20 rounded-sm p-4 font-mono text-sm text-destructive">
                 <code>{error}</code>
               </div>
             </CardContent>
@@ -316,14 +408,14 @@ export const PackageVersionFinder = () => {
         {/* Results */}
         {result && !showForm && (
           <Card
-            className={`terminal-shadow ${
-              result.success ? "border-green-500/20" : "border-yellow-500/20"
-            }`}
+            className={
+              result.success ? "border-accent/20" : "border-destructive/20"
+            }
           >
             <CardHeader>
               <CardTitle
-                className={`flex items-center justify-between ${
-                  result.success ? "text-green-500" : "text-yellow-500"
+                className={`flex items-center justify-between font-mono ${
+                  result.success ? "text-accent" : "text-destructive"
                 }`}
               >
                 <span>
@@ -335,7 +427,7 @@ export const PackageVersionFinder = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleNewSearch}
-                  className="text-sm"
+                  className="text-sm font-mono"
                 >
                   New Search
                 </Button>
@@ -343,20 +435,20 @@ export const PackageVersionFinder = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Search Summary */}
-              <div className="bg-muted rounded-lg p-4">
-                <h4 className="font-semibold text-sm mb-2">
+              <div className="bg-muted rounded-sm p-4">
+                <h4 className="font-semibold text-sm mb-2 font-mono">
                   Search Parameters:
                 </h4>
-                <div className="space-y-1 text-sm">
+                <div className="space-y-1 text-sm font-mono">
                   <div>
                     <strong>Parent Package:</strong>{" "}
-                    <code>{formData.parentPackage}</code>{" "}
+                    <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.parentPackage}</code>{" "}
                     {formData.parentMinVersion &&
                       `>= ${formData.parentMinVersion}`}
                   </div>
                   <div>
                     <strong>Child Package:</strong>{" "}
-                    <code>{formData.childPackage}</code>
+                    <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childPackage}</code>
                   </div>
                   {formData.packageRemoved ? (
                     <div>
@@ -364,7 +456,7 @@ export const PackageVersionFinder = () => {
                       {formData.childMinVersion ? (
                         <>
                           Package should be removed <em>OR</em> version {">"}={" "}
-                          <code>{formData.childMinVersion}</code>
+                          <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childMinVersion}</code>
                         </>
                       ) : (
                         <>Package should be removed</>
@@ -373,7 +465,7 @@ export const PackageVersionFinder = () => {
                   ) : (
                     <div>
                       <strong>Minimum Version:</strong>{" "}
-                      <code>{formData.childMinVersion}</code>
+                      <code className="bg-secondary px-1 py-0.5 rounded-sm">{formData.childMinVersion}</code>
                     </div>
                   )}
                 </div>
@@ -382,24 +474,24 @@ export const PackageVersionFinder = () => {
               <div
                 className={`${
                   result.success
-                    ? "bg-green-50 dark:bg-green-950"
-                    : "bg-yellow-50 dark:bg-yellow-950"
-                } rounded-lg p-4`}
+                    ? "bg-accent/10 border border-accent/20"
+                    : "bg-destructive/10 border border-destructive/20"
+                } rounded-sm p-4`}
               >
                 <div
                   className={`font-mono text-sm ${
                     result.success
-                      ? "text-green-700 dark:text-green-300"
-                      : "text-yellow-700 dark:text-yellow-300"
+                      ? "text-accent"
+                      : "text-destructive"
                   }`}
                 >
                   <code>{result.message}</code>
                 </div>
 
                 {result.version && (
-                  <div className="mt-3 p-3 bg-background rounded border">
-                    <strong>Recommended Version:</strong>{" "}
-                    <code className="text-accent">
+                  <div className="mt-3 p-3 bg-card border rounded-sm">
+                    <strong className="font-mono">Recommended Version:</strong>{" "}
+                    <code className="bg-primary text-primary-foreground px-1 py-0.5 rounded-sm font-mono">
                       {formData.parentPackage}@{result.version}
                     </code>
                   </div>
@@ -408,8 +500,8 @@ export const PackageVersionFinder = () => {
 
               {result.details.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Details:</h4>
-                  <div className="bg-muted rounded-lg p-3 max-h-64 overflow-y-auto">
+                  <h4 className="font-semibold text-sm font-mono">Details:</h4>
+                  <div className="bg-muted rounded-sm p-3 max-h-64 overflow-y-auto">
                     {result.details.map((detail, index) => (
                       <div
                         key={index}
@@ -426,7 +518,7 @@ export const PackageVersionFinder = () => {
         )}
 
         {/* Footer Info */}
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground font-mono">
           <p>Built for developers to resolve npm vulnerabilities efficiently</p>
         </div>
       </div>
