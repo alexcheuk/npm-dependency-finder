@@ -1,21 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { findCompatibleVersion, SearchParams } from '@/lib/package-finder';
+import { NextRequest, NextResponse } from "next/server";
+import { findCompatibleVersion, SearchParams } from "@/lib/package-finder";
+
+// Ensure this route runs on a Serverless Function (Node.js) rather than Edge runtime
+export const runtime = "nodejs";
+// Make sure this API is always dynamic (never statically optimized)
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const body: SearchParams = await request.json();
-    
+
     // Validate required fields
     if (!body.parentPackage || !body.childPackage) {
       return NextResponse.json(
-        { error: 'Parent package and child package are required' },
+        { error: "Parent package and child package are required" },
         { status: 400 }
       );
     }
 
     if (!body.packageRemoved && !body.childMinVersion) {
       return NextResponse.json(
-        { error: 'Child minimum version is required when package is not marked as removed' },
+        {
+          error:
+            "Child minimum version is required when package is not marked as removed",
+        },
         { status: 400 }
       );
     }
@@ -26,14 +34,14 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await findCompatibleVersion(body);
-    
+
     return NextResponse.json(result);
   } catch (error) {
-    console.error('API Error:', error);
+    console.error("API Error:", error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

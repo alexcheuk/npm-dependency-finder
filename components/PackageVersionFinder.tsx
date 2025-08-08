@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -112,6 +111,9 @@ export const PackageVersionFinder = () => {
     details: string[];
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  type RequirementType = "min" | "minOrRemoved" | "removed";
+  const [requirementType, setRequirementType] =
+    useState<RequirementType>("min");
 
   // Load form data with priority: URL params > localStorage > default
   useEffect(() => {
@@ -119,6 +121,14 @@ export const PackageVersionFinder = () => {
     const urlData = loadFromURLParams(searchParams);
     if (urlData) {
       setFormData(urlData);
+      // derive requirement type from fields
+      if (urlData.packageRemoved && !urlData.childMinVersion) {
+        setRequirementType("removed");
+      } else if (urlData.packageRemoved && urlData.childMinVersion) {
+        setRequirementType("minOrRemoved");
+      } else {
+        setRequirementType("min");
+      }
       return;
     }
 
@@ -126,6 +136,13 @@ export const PackageVersionFinder = () => {
     const savedData = loadFromLocalStorage();
     if (savedData) {
       setFormData(savedData);
+      if (savedData.packageRemoved && !savedData.childMinVersion) {
+        setRequirementType("removed");
+      } else if (savedData.packageRemoved && savedData.childMinVersion) {
+        setRequirementType("minOrRemoved");
+      } else {
+        setRequirementType("min");
+      }
     }
   }, [searchParams]);
 
@@ -185,6 +202,22 @@ export const PackageVersionFinder = () => {
 
   const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Keep formData fields in sync when requirement type changes
+  const handleRequirementChange = (value: RequirementType) => {
+    setRequirementType(value);
+    if (value === "min") {
+      setFormData((prev) => ({ ...prev, packageRemoved: false }));
+    } else if (value === "minOrRemoved") {
+      setFormData((prev) => ({ ...prev, packageRemoved: true }));
+    } else if (value === "removed") {
+      setFormData((prev) => ({
+        ...prev,
+        packageRemoved: true,
+        childMinVersion: "",
+      }));
+    }
   };
 
   const handleNewSearch = () => {
@@ -302,8 +335,72 @@ export const PackageVersionFinder = () => {
                   />
                 </div>
 
-                {/* Child Version and/or Removed */}
+                {/* Requirement Mode */}
                 <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium font-mono">
+                      Requirement
+                    </Label>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <label
+                        className={`flex items-center gap-2 rounded-md border p-3 cursor-pointer ${
+                          requirementType === "min"
+                            ? "border-primary"
+                            : "border-border"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="requirement"
+                          value="min"
+                          checked={requirementType === "min"}
+                          onChange={() => handleRequirementChange("min")}
+                          className="accent-primary"
+                        />
+                        <span className="text-sm font-mono">Min version</span>
+                      </label>
+                      <label
+                        className={`flex items-center gap-2 rounded-md border p-3 cursor-pointer ${
+                          requirementType === "minOrRemoved"
+                            ? "border-primary"
+                            : "border-border"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="requirement"
+                          value="minOrRemoved"
+                          checked={requirementType === "minOrRemoved"}
+                          onChange={() =>
+                            handleRequirementChange("minOrRemoved")
+                          }
+                          className="accent-primary"
+                        />
+                        <span className="text-sm font-mono">
+                          Min version OR removed
+                        </span>
+                      </label>
+                      <label
+                        className={`flex items-center gap-2 rounded-md border p-3 cursor-pointer ${
+                          requirementType === "removed"
+                            ? "border-primary"
+                            : "border-border"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="requirement"
+                          value="removed"
+                          checked={requirementType === "removed"}
+                          onChange={() => handleRequirementChange("removed")}
+                          className="accent-primary"
+                        />
+                        <span className="text-sm font-mono">Removed</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Child Version (enabled for min and minOrRemoved) */}
                   <div className="space-y-2">
                     <Label
                       htmlFor="child-version"
@@ -313,37 +410,25 @@ export const PackageVersionFinder = () => {
                     </Label>
                     <Input
                       id="child-version"
-                      placeholder="1.0.0"
+                      placeholder={
+                        requirementType === "removed"
+                          ? "Not required for 'Removed'"
+                          : "1.0.0"
+                      }
                       value={formData.childMinVersion}
                       onChange={(e) =>
                         updateFormData("childMinVersion", e.target.value)
                       }
                       className="font-mono"
-                      required={!formData.packageRemoved}
+                      required={requirementType !== "removed"}
+                      disabled={requirementType === "removed"}
                     />
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="package-removed"
-                      checked={formData.packageRemoved}
-                      onCheckedChange={(checked) =>
-                        updateFormData("packageRemoved", !!checked)
-                      }
-                    />
-                    <div className="space-y-1">
-                      <Label
-                        htmlFor="package-removed"
-                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 font-mono"
-                      >
-                        OR if the package is removed
-                      </Label>
+                    {requirementType === "minOrRemoved" && (
                       <p className="text-xs text-muted-foreground font-mono">
-                        When checked, finds the first version where the child
-                        package is either removed OR meets the minimum version
-                        above.
+                        Will match if the package is removed OR meets this
+                        minimum version.
                       </p>
-                    </div>
+                    )}
                   </div>
                 </div>
 
