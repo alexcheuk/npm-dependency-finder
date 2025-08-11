@@ -56,10 +56,31 @@
   "keywords": [
     "npm",
     "dependency",
+    "dependencies",
+    "transitive dependency",
     "version",
+    "version finder",
     "cli",
-    "finder"
+    "finder",
+    "dependency analyzer",
+    "vulnerability",
+    "security",
+    "supply chain",
+    "npm audit",
+    "breakpoint",
+    "dependency removal",
+    "minimal upgrade",
+    "upgrade path",
+    "package resolution"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexcheuk/npm-dependency-finder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alexcheuk/npm-dependency-finder/issues"
+  },
+  "homepage": "https://npm-version-finder.com",
   "engines": {
     "node": ">=18"
   },

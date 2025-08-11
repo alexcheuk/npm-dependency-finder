@@ -123,6 +123,20 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     webApplicationSchema,
     softwareApplicationSchema,
     faqSchema,
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      name: "find-dep-breakpoint CLI",
+      codeRepository: "https://github.com/alexcheuk/npm-dependency-finder",
+      programmingLanguage: "TypeScript",
+      runtimePlatform: "Node.js >= 18",
+      operatingSystem: "Any",
+      description:
+        "CLI and web tool to compute earliest parent package version where a target dependency is removed or meets a version threshold (minimal upgrade breakpoint).",
+      keywords:
+        "npm, dependency analysis, transitive dependency, vulnerability, minimal upgrade, breakpoint, find earliest version",
+      license: "https://opensource.org/licenses/MIT",
+    },
     ...(searchActionSchema ? [searchActionSchema] : []),
   ];
 
