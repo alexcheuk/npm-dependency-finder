@@ -5,7 +5,6 @@
   "description": "Find the earliest parent package version where a target (direct or transitive) dependency is removed or reaches a required minimum version.",
   "type": "module",
   "bin": {
-    "fdb": "dist/cli/cli.js",
     "find-dep-breakpoint": "dist/cli/cli.js"
   },
   "scripts": {
