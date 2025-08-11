@@ -15,7 +15,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "WebSite",
     name: "npm Version Finder",
     description:
-      "Find the minimal parent npm package version that satisfies child package requirements. Resolve vulnerabilities with minimal changelog impact.",
+      "Find the earliest parent package version where a target dependency is removed or meets a required version threshold.",
     url: "https://npm-version-finder.com",
     potentialAction: {
       "@type": "SearchAction",
@@ -33,7 +33,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "WebApplication",
     name: "npm Version Finder",
     description:
-      "Find the minimal parent npm package version that satisfies child package requirements",
+      "Find the earliest parent package version where a target (direct or transitive) dependency is removed or upgraded.",
     url: "https://npm-version-finder.com",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Web Browser",
@@ -43,12 +43,13 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
       priceCurrency: "USD",
     },
     featureList: [
-      "Find compatible npm package versions",
-      "Resolve dependency vulnerabilities",
-      "Minimal changelog impact",
-      "Stable and pre-release version support",
-      "Permalink sharing",
-      "Dark/light theme support",
+      "Find earliest compatible parent version",
+      "Target dependency removal or version threshold",
+      "Resolve vulnerabilities with minimal upgrade",
+      "Stable & pre-release prioritization",
+      "Permalink & shareable search URLs",
+      "CLI: find-dep-breakpoint",
+      "Dark / light theme",
     ],
   };
 
@@ -57,7 +58,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
     "@type": "SoftwareApplication",
     name: "npm Version Finder",
     description:
-      "Developer tool for finding minimal npm package versions that satisfy dependency requirements",
+      "Developer tool to compute the earliest parent version where a target dependency is removed or meets a version requirement.",
     url: "https://npm-version-finder.com",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Any",
@@ -81,7 +82,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
         name: "What is npm Version Finder?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "npm Version Finder is a free developer tool that helps you find the minimal parent npm package version that satisfies child package requirements. It's designed to help resolve vulnerabilities with minimal changelog impact.",
+          text: "npm Version Finder helps you identify the earliest parent package version where a target (direct or transitive) dependency is removed or upgraded to a safe / required version, reducing unnecessary upgrades while fixing issues.",
         },
       },
       {
@@ -89,7 +90,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
         name: "How does it help with vulnerability resolution?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "By finding the earliest version that meets your requirements, you can minimize the number of breaking changes while still addressing security vulnerabilities in your dependencies.",
+          text: "It locates the earliest satisfying version, minimizing breaking changes while still resolving security advisories or policy constraints.",
         },
       },
       {
@@ -97,7 +98,7 @@ export function StructuredData({ searchQuery }: StructuredDataProps) {
         name: "Is it free to use?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, npm Version Finder is completely free to use. No registration or payment required.",
+          text: "Yes. 100% free to use. No registration required.",
         },
       },
     ],

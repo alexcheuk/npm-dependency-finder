@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | npm Version Finder",
   },
   description:
-    "Find the minimal parent npm package version that satisfies child package requirements. Resolve vulnerabilities with minimal changelog impact. Free developer tool for npm dependency management.",
+    "Find the earliest parent npm package version where a target (direct or transitive) dependency is removed or meets a version threshold. Minimize upgrade surface while resolving vulnerabilities. Includes shareable web UI & CLI (find-dep-breakpoint).",
   keywords: [
     "npm",
     "package manager",
@@ -27,6 +27,10 @@ export const metadata: Metadata = {
     "vulnerability",
     "security",
     "version finder",
+    "dependency breakpoint",
+    "transitive dependency",
+    "dependency removal",
+    "cli tool",
     "node.js",
     "javascript",
     "developer tools",
@@ -120,6 +124,7 @@ export default function RootLayout({
           content="#ffffff"
           media="(prefers-color-scheme: light)"
         />
+        <meta name="color-scheme" content="light dark" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

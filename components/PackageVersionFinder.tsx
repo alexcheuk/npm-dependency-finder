@@ -245,12 +245,12 @@ export const PackageVersionFinder = () => {
             </span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight font-mono">
-            Find Minimal Package Versions
+            Find Dependency Breakpoints
           </h1>
           <p className="text-muted-foreground max-w-lg mx-auto font-mono text-sm">
-            Discover the earliest parent npm package version that satisfies your
-            child package requirements. Resolve vulnerabilities with minimal
-            changelog impact.
+            Discover the earliest parent package version where a target (direct
+            or transitive) dependency is removed or meets a minimum version.
+            Resolve vulnerabilities with the smallest necessary upgrade.
           </p>
         </header>
 
@@ -321,7 +321,7 @@ export const PackageVersionFinder = () => {
                     htmlFor="child-package"
                     className="text-sm font-medium font-mono"
                   >
-                    Child Package Name
+                    Target Dependency Name
                   </Label>
                   <Input
                     id="child-package"
@@ -406,7 +406,7 @@ export const PackageVersionFinder = () => {
                       htmlFor="child-version"
                       className="text-sm font-medium font-mono"
                     >
-                      Child Package Minimum Version
+                      Target Dependency Minimum Version
                     </Label>
                     <Input
                       id="child-version"

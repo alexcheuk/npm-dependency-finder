@@ -1,11 +1,18 @@
 {
-  "name": "npm-dependency-finder",
-  "private": true,
-  "version": "0.0.0",
+  "name": "find-dep-breakpoint",
+  "private": false,
+  "version": "0.1.0",
+  "description": "Find the earliest parent package version where a target (direct or transitive) dependency is removed or reaches a required minimum version.",
   "type": "module",
+  "bin": {
+    "npm-version-finder": "dist/cli/cli.js",
+    "find-dep-breakpoint": "dist/cli/cli.js"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build:web": "next build",
+    "build:cli": "tsc -p tsconfig.cli.json",
+    "build": "npm run build:cli && npm run build:web",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
@@ -44,5 +51,15 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0"
+  },
+  "keywords": [
+    "npm",
+    "dependency",
+    "version",
+    "cli",
+    "finder"
+  ],
+  "engines": {
+    "node": ">=18"
   }
 }

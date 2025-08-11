@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist/cli",
+    "module": "NodeNext",
+    "target": "ES2020",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": false,
+    "isolatedModules": false,
+    "skipLibCheck": true
+  },
+  "include": ["cli/**/*", "lib/package-finder.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

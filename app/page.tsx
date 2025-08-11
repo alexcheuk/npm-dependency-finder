@@ -18,7 +18,7 @@ export async function generateMetadata({
 
   if (parentPackage && childPackage) {
     const title = `${parentPackage} to ${childPackage} Dependency Analysis | npm Version Finder`;
-    const description = `Find the minimal ${parentPackage} version that satisfies ${childPackage} requirements. Resolve npm vulnerabilities with minimal changelog impact.`;
+    const description = `Find the earliest ${parentPackage} version where target dependency '${childPackage}' is removed or meets the required version. Resolve vulnerabilities with minimal upgrade impact.`;
 
     return {
       title,
@@ -39,9 +39,9 @@ export async function generateMetadata({
   }
 
   return {
-    title: "npm Version Finder - Find Minimal Package Versions",
+    title: "npm Version Finder - Dependency Breakpoint Finder",
     description:
-      "Find the minimal parent npm package version that satisfies child package requirements. Free developer tool for resolving dependency vulnerabilities.",
+      "Find the earliest parent package version where a target (direct or transitive) dependency is removed or reaches a required version threshold.",
   };
 }
 

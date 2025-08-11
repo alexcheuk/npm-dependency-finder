@@ -1,5 +1,12 @@
 import * as semver from "semver";
 
+export interface FinderOptions {
+  /** When true, suppresses all informational console output */
+  silent?: boolean;
+  /** Custom logger function; ignored if silent is true */
+  logger?: (message: string) => void;
+}
+
 export interface SearchParams {
   parentPackage: string;
   parentMinVersion: string;
@@ -16,7 +23,8 @@ export interface SearchResult {
 }
 
 export async function findCompatibleVersion(
-  params: SearchParams
+  params: SearchParams,
+  options: FinderOptions = {}
 ): Promise<SearchResult> {
   const {
     parentPackage,
@@ -26,9 +34,14 @@ export async function findCompatibleVersion(
     packageRemoved,
   } = params;
 
+  const log = (msg: string) => {
+    if (options.silent) return;
+    (options.logger || console.log)(msg);
+  };
+
   try {
     // Get all versions of the parent package
-    console.log(`🔍 Searching for versions of '${parentPackage}'...`);
+    log(`🔍 Searching for versions of '${parentPackage}'...`);
     const versions = await getPackageVersions(parentPackage);
 
     if (!versions.length) {
@@ -55,7 +68,7 @@ export async function findCompatibleVersion(
       };
     }
 
-    console.log(
+    log(
       `Found ${filteredVersions.length} versions >= ${
         parentMinVersion || "any"
       }`
@@ -69,7 +82,7 @@ export async function findCompatibleVersion(
       semver.prerelease(version)
     );
 
-    console.log(
+    log(
       `Prioritizing: ${stableVersions.length} stable versions, ${preReleaseVersions.length} pre-release versions`
     );
 
@@ -82,20 +95,17 @@ export async function findCompatibleVersion(
     for (const group of versionGroups) {
       if (group.versions.length === 0) continue;
 
-      console.log(
-        `Checking ${group.versions.length} ${group.type} versions...`
-      );
+      log(`Checking ${group.versions.length} ${group.type} versions...`);
 
       for (const version of group.versions) {
-        console.log(
-          `--- Checking ${parentPackage}@${version} (${group.type}) ---`
-        );
+        log(`--- Checking ${parentPackage}@${version} (${group.type}) ---`);
 
         const dependencyResult = await analyzePackageDependencies(
           `${parentPackage}@${version}`,
           childPackage,
           childMinVersion,
-          packageRemoved
+          packageRemoved,
+          { silent: options.silent, logger: options.logger }
         );
 
         if (dependencyResult.success) {
@@ -149,7 +159,8 @@ async function analyzePackageDependencies(
   parentPackageVersion: string,
   childPackage: string,
   childMinVersion: string,
-  packageRemoved: boolean
+  packageRemoved: boolean,
+  options: FinderOptions = {}
 ): Promise<DependencyAnalysisResult> {
   // Serverless-friendly analysis using npm registry without spawning processes
   const [parentName, parentVersion] = splitNameAndVersion(parentPackageVersion);
@@ -180,10 +191,13 @@ async function analyzePackageDependencies(
     }
   }
 
-  console.log(
-    `Found ${dependencyLines.length} instances of '${childPackage}' in the dependency tree:`
-  );
-  dependencyLines.forEach((line) => console.log(`  ${line}`));
+  if (!options.silent) {
+    const logger = options.logger || console.log;
+    logger(
+      `Found ${dependencyLines.length} instances of '${childPackage}' in the dependency tree:`
+    );
+    dependencyLines.forEach((line) => logger(`  ${line}`));
+  }
 
   // Handle OR condition: package removed OR minimum version met
   if (packageRemoved) {
