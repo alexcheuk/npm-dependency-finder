@@ -1,11 +1,12 @@
 {
   "name": "find-dep-breakpoint",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Find the earliest parent package version where a target (direct or transitive) dependency is removed or reaches a required minimum version.",
   "type": "module",
   "bin": {
-    "find-dep-breakpoint": "dist/cli/cli.js"
+    "find-dep-breakpoint": "dist/cli/cli/cli.js",
+    "fdb": "dist/cli/cli/cli.js"
   },
   "scripts": {
     "dev": "next dev",
@@ -14,9 +15,17 @@
     "build": "npm run build:cli && npm run build:web",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build:cli"
   },
   "dependencies": {
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^22.16.5",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
@@ -33,16 +42,9 @@
     "next-themes": "^1.0.0-beta.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "semver": "^7.7.2",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "@types/node": "^22.16.5",
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
+    "tailwindcss-animate": "^1.0.7",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
@@ -60,5 +62,12 @@
   ],
   "engines": {
     "node": ">=18"
-  }
+  },
+  "files": [
+    "dist/cli",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT"
 }

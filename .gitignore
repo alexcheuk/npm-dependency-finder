@@ -9,13 +9,11 @@ lerna-debug.log*
 # Next.js
 .next/
 out/
-dist/
 build/
 .vercel/
 
 # Production builds
 /build
-/dist
 /out
 
 # Runtime data

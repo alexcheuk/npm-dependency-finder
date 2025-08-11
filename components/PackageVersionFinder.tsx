@@ -12,14 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Package, Search, Terminal } from "lucide-react";
+
+import { Package, Search, Terminal, Copy, Check } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { analytics } from "@/lib/analytics";
 
@@ -226,6 +220,43 @@ export const PackageVersionFinder = () => {
     setResult(null);
     setError(null);
     // Form data persists automatically since we don't reset it
+  };
+
+  // Build dynamic CLI command reflecting current input, with defaults when empty
+  const buildCliCommand = () => {
+    const parentSpec = formData.parentPackage
+      ? formData.parentPackage +
+        (formData.parentMinVersion ? `@${formData.parentMinVersion}` : "")
+      : "auth0@3"; // default
+    const childBase = formData.childPackage || "form-data"; // default name
+    // If requirement type is removed and no min version (or childMinVersion empty), omit version
+    const childSpec = (() => {
+      if (!formData.childPackage) return "form-data@4.04"; // full default
+      if (requirementType === "removed" && !formData.childMinVersion)
+        return childBase; // no version
+      return (
+        childBase +
+        (formData.childMinVersion ? `@${formData.childMinVersion}` : "")
+      );
+    })();
+    const removedFlag =
+      requirementType === "removed" || requirementType === "minOrRemoved"
+        ? " --removed"
+        : "";
+    return `npx find-dep-breakpoint ${parentSpec} ${childSpec}${removedFlag}`.trim();
+  };
+
+  // Copy to clipboard handling
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(buildCliCommand());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+      analytics.trackFormInteraction("copy_cli_command", "button");
+    } catch (e) {
+      console.warn("Copy failed", e);
+    }
   };
 
   return (
@@ -641,6 +672,37 @@ export const PackageVersionFinder = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Quick CLI tip near bottom (dynamic) */}
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="text-center space-y-2">
+              <p className="text-[0.7rem] tracking-wide font-semibold uppercase text-primary font-mono">
+                Tip
+              </p>
+              <p className="text-xs text-muted-foreground font-mono">
+                Did you know you can run this directly from your terminal?
+              </p>
+              <div className="relative inline-block text-left group">
+                <code className="block whitespace-pre-wrap rounded-sm bg-background/70 px-2 py-2 pr-10 text-xs font-mono border">
+                  {buildCliCommand()}
+                </code>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  aria-label={copied ? "Command copied" : "Copy command"}
+                  className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-sm border bg-background/80 backdrop-blur text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Footer Info */}
         <footer className="text-center text-sm text-muted-foreground font-mono">
